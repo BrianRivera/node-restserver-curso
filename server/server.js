@@ -2,41 +2,33 @@ require('./config/config');
 const express = require('express')
 const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(require('./routes/usuarios'))
 
 
-app.get('/usuario', function(req, res) {
-    res.json('get usuario')
-});
 
-app.post('/usuario', function(req, res) {
-    let persona = req.body;
-    if (persona.nombre === undefined) {
-        res.status(400).json({
-            ok: false,
-            mensaje: 'el nombre es nesesario'
-        });
-    } else {
-        res.json({
-            persona
-        });
-    }
-
-});
-
-app.put('/usuario/:id', function(req, res) {
-
-    let id = req.params.id;
-    res.json({
-        id
+let conexion = async() => {
+    let resp = await mongoose.connect(process.env.URLDB, {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useUnifiedTopology: true
     });
-});
+}
+conexion();
+// mongoose.connect('mongodb://localhost:27017/cafe', (err, res) => {
 
-app.delete('/usuario', function(req, res) {
-    res.json('delete usuario')
-});
+//     if (err) throw err;
+//     console.log('bd ONLINE');
+
+
+// });
+
+
+
+
 
 
 app.listen(process.env.PORT, () => {
