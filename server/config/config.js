@@ -25,5 +25,3 @@ if (process.env.NODE_ENV === 'dev') {
 
 
 process.env.URLDB = urlDB;
-//mongodb://localhost:27017/cafe
-//mongodb+srv://strider:<password>@cluster0-g9igt.mongodb.net/test?retryWrites=true&w=majority
