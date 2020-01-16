@@ -3,6 +3,7 @@ const express = require('express')
 const _ = require('underscore');
 
 const Categoria = require('../models/categoria');
+require('../models/usuario');
 const { verificaToken, verificaAdminRole } = require('../../middlewares/autentificacion');
 
 const app = express();
@@ -13,23 +14,19 @@ const app = express();
 app.get('/categoria', verificaToken, (req, res) => {
 
     Categoria.find()
-        .populate('usuario', 'nombre')
+        .populate('usuario')
         .exec((err, categoriaDB) => {
-
             if (err) {
                 return res.status(400).json({
                     ok: false,
                     err
                 });
             }
-
             res.json({
                 ok: true,
                 categoriaDB
             });
-
         });
-
 });
 
 // =============================
