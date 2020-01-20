@@ -67,8 +67,12 @@ app.put('/upload/:tipo/:id', (req, res) => {
         }
 
         //aqui, imagen ya guardada
+        if (tipo === 'usuarios') {
+            imagenUsuario(id, res, nombreArchivoFinal);
 
-        imagenUsuario(id, res, nombreArchivoFinal);
+        } else if (tipo === 'productos') {
+            imagenProducto(id, res, nombreArchivoFinal);
+        }
     });
 
 
@@ -81,14 +85,14 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
     Usuario.findById(id, (err, usuarioDB) => {
 
         if (err) {
-            borra_archivo(nombreArchivo, 'usuarios');
+            borra_archivo(nombreArchivoFinal, 'usuarios');
             return res.status(500).json({
                 ok: false,
                 err
             });
         }
         if (!usuarioDB) {
-            borra_archivo(nombreArchivo, 'usuarios');
+            borra_archivo(nombreArchivoFinal, 'usuarios');
             return res.status(400).json({
                 ok: false,
                 error: {
@@ -119,8 +123,34 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
 
 }
 
-function imagenProducto() {
-
+function imagenProducto(id, res, nombreArchivoFinal) {
+    Producto.findById(id, (err, productoBD) => {
+        if (err) {
+            borra_archivo(nombreArchivoFinal, 'productos');
+            return res.status(500).json({
+                ok: false,
+                err
+            });
+        }
+        if (!productoBD) {
+            borra_archivo(nombreArchivoFinal, 'productos');
+            return res.status(400).json({
+                ok: false,
+                error: {
+                    message: 'producto no encontrado'
+                }
+            });
+        }
+        borra_archivo(productoBD.img, 'productos');
+        productoBD.img = nombreArchivoFinal;
+        productoBD.save((err, productoGuardado) => {
+            res.json({
+                ok: true,
+                producto: productoGuardado,
+                img: nombreArchivoFinal
+            });
+        });
+    });
 }
 
 
