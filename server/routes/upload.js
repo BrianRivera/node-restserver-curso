@@ -5,6 +5,9 @@ const app = express();
 
 const Usuario = require('../models/usuario');
 const Producto = require('../models/producto');
+
+const fs = require('fs');
+const path = require('path');
 //default option
 app.use(fileUpload());
 
@@ -66,10 +69,6 @@ app.put('/upload/:tipo/:id', (req, res) => {
         //aqui, imagen ya guardada
 
         imagenUsuario(id, res, nombreArchivoFinal);
-        res.json({
-            ok: true,
-            message: 'imagen subida correctamente'
-        });
     });
 
 
@@ -82,12 +81,14 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
     Usuario.findById(id, (err, usuarioDB) => {
 
         if (err) {
+            borra_archivo(nombreArchivo, 'usuarios');
             return res.status(500).json({
                 ok: false,
                 err
             });
         }
         if (!usuarioDB) {
+            borra_archivo(nombreArchivo, 'usuarios');
             return res.status(400).json({
                 ok: false,
                 error: {
@@ -96,6 +97,14 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
             });
         }
 
+        //no repite la imagen, borra la anterior
+        // let pathImagen = path.resolve(__dirname, `../../uploads/usuarios/${usuarioDB.img}`);
+        // if (fs.existsSync(pathImagen)) {
+        //     fs.unlinkSync(pathImagen);
+        // }
+        borra_archivo(usuarioDB.img, 'usuarios');
+
+
         usuarioDB.img = nombreArchivoFinal;
         usuarioDB.save((err, usuarioGuardado) => {
             res.json({
@@ -103,7 +112,7 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
                 usuario: usuarioGuardado,
                 img: nombreArchivoFinal
             });
-        })
+        });
 
 
     });
@@ -112,6 +121,14 @@ function imagenUsuario(id, res, nombreArchivoFinal) {
 
 function imagenProducto() {
 
+}
+
+
+function borra_archivo(nombreImagen, tipo) {
+    let pathImagen = path.resolve(__dirname, `../../uploads/${ tipo }/${nombreImagen}`);
+    if (fs.existsSync(pathImagen)) {
+        fs.unlinkSync(pathImagen);
+    }
 }
 
 module.exports = app;
